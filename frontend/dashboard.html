@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Dashboard</h1>
+    <div id="protectedData"></div>
+    <button id="logout" class="btn">Logout</button>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      try {
+        const response = await fetch('http://localhost:3000/protected', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          document.getElementById('protectedData').innerHTML = `
+            <p>${data.message}</p>
+            <p>Welcome, ${data.user.username}!</p>
+          `;
+        } else {
+          localStorage.removeItem('token');
+          window.location.href = 'login.html';
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    });
+    
+    document.getElementById('logout').addEventListener('click', () => {
+      localStorage.removeItem('token');
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>
